@@ -1,9 +1,11 @@
-<phpunit bootstrap="vendor/autoload.php">
+<phpunit
+        bootstrap="vendor/autoload.php"
+        colors="true"
+        stopOnFailure="false"
+>
     <testsuites>
         <testsuite name="csrfmiddleware">
-            <directory>
-                test
-            </directory>
+            <directory suffix=".php">test</directory>
         </testsuite>
     </testsuites>
 </phpunit>
