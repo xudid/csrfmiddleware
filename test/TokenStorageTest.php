@@ -29,4 +29,29 @@ class TokenStorageTest extends TestCase
         $this->assertTrue($storage->has('aze'));
         $this->assertFalse($storage->has('qsd'));
     }
+
+    public function testDefaultLimit()
+    {
+        $storage = new TokenStorage();
+        $limit = 60;
+        for ($i = 1; $i <= $limit; $i++) {
+            $storage->add('aze' . $i);
+        }
+        $this->assertEquals(50, $storage->count());
+        $this->assertFalse($storage->has('aze' . 10));
+        $this->assertTrue($storage->has('aze' . 60));
+    }
+
+    public function testLimit()
+    {
+        $storage = new TokenStorage();
+        $storage->limit(100);
+        $limit = 160;
+        for ($i = 1; $i <= $limit; $i++) {
+            $storage->add('aze' . $i);
+        }
+        $this->assertEquals(100, $storage->count());
+        $this->assertFalse($storage->has('aze' . 60));
+        $this->assertTrue($storage->has('aze' . 160));
+    }
 }

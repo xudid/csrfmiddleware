@@ -5,6 +5,7 @@ namespace Xudid\CsrfMiddleware;
 class TokenStorage implements TokenStorageInterface
 {
     private array $tokens = [];
+    private int $limit = 50;
 
     public function __construct($tokens = [])
     {
@@ -13,6 +14,10 @@ class TokenStorage implements TokenStorageInterface
 
     public function add(string $token): static
     {
+        if ($this->count() == $this->limit){
+            array_shift($this->tokens);
+        }
+
        $this->tokens[] = $token;
        return $this;
     }
@@ -36,5 +41,11 @@ class TokenStorage implements TokenStorageInterface
     public function count(): int
     {
         return count($this->tokens);
+    }
+
+    public function limit(int $limit): static
+    {
+        $this->limit = $limit;
+        return $this;
     }
 }
