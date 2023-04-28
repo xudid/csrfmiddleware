@@ -1,5 +1,6 @@
 <?php
 
+use Core\Security\Token;
 use PHPUnit\Framework\TestCase;
 use Xudid\CsrfMiddleware\TokenStorage;
 use Xudid\CsrfMiddleware\TokenStorageInterface;
@@ -53,5 +54,17 @@ class TokenStorageTest extends TestCase
         $this->assertEquals(100, $storage->count());
         $this->assertFalse($storage->has('aze' . 60));
         $this->assertTrue($storage->has('aze' . 160));
+    }
+
+    public function testIsValid()
+    {
+        $storage = new TokenStorage();
+        $token = new Token();
+        $storage->add($token);
+        $valid = $storage->isValid($token);
+        $this->assertTrue($valid);
+        $storage->burn($token);
+        $valid = $storage->isValid($token);
+        $this->assertFalse($valid);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Xudid\CsrfMiddleware;
 
+use Core\Security\Token;
+
 class TokenStorage implements TokenStorageInterface
 {
     private array $tokens = [];
@@ -36,6 +38,11 @@ class TokenStorage implements TokenStorageInterface
             }
         }
         return $this;
+    }
+
+    public function isValid(string $token): bool
+    {
+       return $this->has($token);
     }
 
     public function count(): int
