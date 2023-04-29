@@ -14,25 +14,30 @@ class TokenStorage implements TokenStorageInterface
         $this->tokens = $tokens;
     }
 
-    public function add(string $token): static
+    public function add(Token $token): static
     {
-        if ($this->count() == $this->limit){
+        if ($this->count() == $this->limit) {
             array_shift($this->tokens);
         }
 
-       $this->tokens[] = $token;
-       return $this;
+        $this->tokens[] = $token;
+        return $this;
     }
 
     public function has(string $requestToken): bool
     {
-        return in_array($requestToken, $this->tokens);
+        foreach ($this->tokens as $token) {
+            if ((string)$token == $requestToken) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function burn(string $requestToken): static
     {
         foreach ($this->tokens as $index => $token) {
-            if ($token == $requestToken) {
+            if ((string)$token == $requestToken) {
                 unset($this->tokens[$index]);
                 return $this;
             }
@@ -40,9 +45,23 @@ class TokenStorage implements TokenStorageInterface
         return $this;
     }
 
-    public function isValid(string $token): bool
+    /**
+     * If no validity delay is done return storage has $token value
+     * If validity delay is done return storage has $token value and $token is not expired
+     */
+    public function isValid(string $tokenString, ?int $validityDelay = null): bool
     {
-       return $this->has($token);
+        if (!$this->has($tokenString)) {
+            return false;
+        }
+
+        $token = $this->get($tokenString);
+
+        if (is_null($validityDelay)) {
+            return true;
+        }
+
+        return $token->isExpired($validityDelay);
     }
 
     public function count(): int
@@ -54,5 +73,15 @@ class TokenStorage implements TokenStorageInterface
     {
         $this->limit = $limit;
         return $this;
+    }
+
+    private function get(string $tokenString): ?Token
+    {
+        foreach ($this->tokens as $token) {
+            if ((string)$token == $tokenString) {
+                return $token;
+            }
+        }
+        return null;
     }
 }

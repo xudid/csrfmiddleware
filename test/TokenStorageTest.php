@@ -10,7 +10,7 @@ class TokenStorageTest extends TestCase
     public function testAdd()
     {
         $storage = new TokenStorage();
-        $result = $storage->add('aze');
+        $result = $storage->add(new Token);
         $this->assertInstanceOf(TokenStorageInterface::class, $result);
         $this->assertEquals(1, $storage->count());
     }
@@ -18,29 +18,35 @@ class TokenStorageTest extends TestCase
     public function testBurn()
     {
         $storage = new TokenStorage();
-        $storage->add('aze');
-        $storage->burn('aze');
+        $token = new Token();
+        $storage->add($token);
+        $storage->burn((string)$token);
         $this->assertEquals(0, $storage->count());
     }
 
     public function testHas()
     {
         $storage = new TokenStorage();
-        $storage->add('aze');
-        $this->assertTrue($storage->has('aze'));
-        $this->assertFalse($storage->has('qsd'));
+        $token = new Token;
+        $token2 = new Token;
+        $storage->add($token);
+        $this->assertTrue($storage->has($token));
+        $this->assertFalse($storage->has($token2));
     }
 
     public function testDefaultLimit()
     {
         $storage = new TokenStorage();
         $limit = 60;
+        $generatedTokens = [];
         for ($i = 1; $i <= $limit; $i++) {
-            $storage->add('aze' . $i);
+            $token = new Token();
+            $generatedTokens[$i] = $token;
+            $storage->add($token);
         }
         $this->assertEquals(50, $storage->count());
-        $this->assertFalse($storage->has('aze' . 10));
-        $this->assertTrue($storage->has('aze' . 60));
+        $this->assertFalse($storage->has((string)$generatedTokens[10]));
+        $this->assertTrue($storage->has((string)$generatedTokens[60]));
     }
 
     public function testLimit()
@@ -48,12 +54,15 @@ class TokenStorageTest extends TestCase
         $storage = new TokenStorage();
         $storage->limit(100);
         $limit = 160;
+        $generatedTokens = [];
         for ($i = 1; $i <= $limit; $i++) {
-            $storage->add('aze' . $i);
+            $token = new Token();
+            $generatedTokens[$i] = $token;
+            $storage->add($token);
         }
         $this->assertEquals(100, $storage->count());
-        $this->assertFalse($storage->has('aze' . 60));
-        $this->assertTrue($storage->has('aze' . 160));
+        $this->assertFalse($storage->has((string)$generatedTokens[60]));
+        $this->assertTrue($storage->has((string)$generatedTokens[160]));
     }
 
     public function testIsValid()
@@ -64,7 +73,7 @@ class TokenStorageTest extends TestCase
         $valid = $storage->isValid($token);
         $this->assertTrue($valid);
         $storage->burn($token);
-        $valid = $storage->isValid($token);
+        $valid = $storage->isValid($token, 5);
         $this->assertFalse($valid);
     }
 }
